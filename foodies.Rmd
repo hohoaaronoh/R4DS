@@ -184,3 +184,4 @@ From the bigrams listed for each city we can see a few instances of word pairs a
 
 
 For a quick first pass it looks like in Chicago foodies like their chicken, ripe fruit, potato and rice, but not as much as those peppermint mocha brownies.  Los Angeles likes giant burgers, cheese, the farmers market, but not as much as their carmalized banana split.  New York is happy about japanese, cheese sandwich, ingredients, but not as much as their creamiest cake filling.  Apparently I'm not the only one with a sweet tooth.
+![tf-idf plot](bigram_plot-1.png)
