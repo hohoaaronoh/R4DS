@@ -7,9 +7,12 @@ output:
 
 ### Background
 
-To practice using the `twitteR` and `tidytext` packages, I wanted to see if I could find regional differences in foodie tweets.  `twitteR` makes it easy to download tweets by matching the content of the tweet, the location of the tweet or location of the user. 
-`tidytext` provides natural language processing tools in an easy 'tidy' format to flow well with the rest of the tidyverse.
-To learn more have a look at [Text Mining with R: A Tidy Approach](https://www.tidytextmining.com/) by Julia Silge and David Robinson.  If you're wondering what all the tidy talk is about, have a look at this section from [R For Data Science](http://r4ds.had.co.nz/tidy-data.html#tidy-data-1) by Garrett Grolemund and Hadley Wickham.
+To practice using the `twitteR` and `tidytext` packages, I wanted to see if I could find regional differences in foodie tweets.  
+`twitteR` makes it easy to download tweets by matching the content of the tweet, the location of the tweet or location of the 
+user. `tidytext` provides natural language processing tools in an easy 'tidy' format to flow well with the rest of the 
+tidyverse. To learn more have a look at [Text Mining with R: A Tidy Approach](https://www.tidytextmining.com/) by Julia Silge 
+and David Robinson.  If you're wondering what all the tidy talk is about, have a look at this section from [R For Data 
+Science](http://r4ds.had.co.nz/tidy-data.html#tidy-data-1) by Garrett Grolemund and Hadley Wickham.
 
 ### Part 1: Start twitteR and find the tweets
 
@@ -37,7 +40,10 @@ setup_twitter_oauth(consumer_key, consumer_secret, access_token, access_secret)
 
 #### Search tweets
 
-`searchTwitter` makes it easy to find tweets. Here I set the search terms to search all tweets containing '#foodie' or '#foodies'.  The search is constrained by the `geocode` which is latitude, longitude, and a radius from that location.  The results will be tweets that have a location from within that radius *or* tweets by user's whose profile has a location set within that radius.
+`searchTwitter` makes it easy to find tweets. Here I set the search terms to search all tweets containing '#foodie' or 
+'#foodies'.  The search is constrained by the `geocode` which is latitude, longitude, and a radius from that location.  The 
+results will be tweets that have a location from within that radius *or* tweets by user's whose profile has a location set 
+within that radius.
 
 The locations I chose were Chicago, Los Angeles, and New York with a search radius of 20 miles.
 
@@ -107,7 +113,10 @@ clean_tweets.df <- tweets.df %>%
 ```
 
 
-In order to analyze the messages we first have to tidy the text.  Tidy here means one word per row per city since I want to group by city to compare them to each other.  To tidy we can use `unnest_tokens()` which takes arguments for the name of the output column, the input column, and in this case I'm making *bigrams* or word-pairs to treat as individual observations.  The pairs are then split into two separate columns for cleaning using the 'stop words' list.
+In order to analyze the messages we first have to tidy the text.  Tidy here means one word per row per city since I want to 
+group by city to compare them to each other.  To tidy we can use `unnest_tokens()` which takes arguments for the name of the 
+output column, the input column, and in this case I'm making *bigrams* or word-pairs to treat as individual observations.  The 
+pairs are then split into two separate columns for cleaning using the 'stop words' list.
 
 ```{r bigrams, echo=TRUE}
 # tokenize by bigrams
@@ -130,7 +139,8 @@ bigrams_filtered %>% head(10)
 ```
 
 
-The cleaned bigrams reunited into one column are below.  Note that if we had the phrase 'cast iron skillet' we would have both bigrams 'cast iron' and 'iron skillet'.  
+The cleaned bigrams reunited into one column are below.  Note that if we had the phrase 'cast iron skillet' we would have both 
+bigrams 'cast iron' and 'iron skillet'.
 
 
 ```{r unite_bigrams, echo=TRUE}
@@ -141,11 +151,20 @@ bigrams_united <- bigrams_filtered %>%
 arrange(bigrams_united, desc(bigram)) %>% top_n(10)
 ```
 
-**tf-idf** term frequency inverse document frequency calculation gives us an idea of which words *characterize* the foodie tweets from each city.  Term frequency is how often the word, or bigram in this case, appears divided by how many total bigrams appear in each collection of tweets.  This is then multiplied by a weighting factor called *inverse document frequency* which is calculated as:
+**tf-idf** term frequency inverse document frequency calculation gives us an idea of which words *characterize* the foodie 
+tweets from each city.  Term frequency is how often the word, or bigram in this case, appears divided by how many total bigrams 
+appear in each collection of tweets.  This is then multiplied by a weighting factor called *inverse document frequency* which 
+is calculated as:
 
-> $idf(term) = ln(\frac{n_{documents}}{n_{documents containing term}})$
+$$idf(term) = ln(\frac{n_{documents}}{n_{documents containing term}})$$
 
-In this case because there are only three cities the idf could be either $ln(\frac{3}{3}) = 0$, $ln(\frac{3}{2}) = 0.405$, or $ln(\frac{3}{1}) = 1.099$.  So if we're looking at Chicago and the bigram is 'best pizza' and it shows up 100 times out of 1000 total bigrams in all the Chicago tweets, the term frequency is $0.1$.  Now if the bigram 'best pizza' also occurs in both the NY and LA tweets the *inverse document frequency* is then $ln(\frac{3}{3}) = 0$ so the **tf-idf** for 'best pizza' is $0.1 * 0 = 0$.  On the other hand if it was only used in the Chicago set of tweets the .1 would be multiplied by $ln(\frac{3}{1}) = 1.099$ therefore increasing it's weight.  In this way the calculating the **tf-idf** can help determine which terms (word pairs) characterize the #foodie tweets from each city.
+In this case because there are only three cities the idf could be either $ln(\frac{3}{3}) = 0$, $ln(\frac{3}{2}) = 0.405$, or 
+$ln(\frac{3}{1}) = 1.099$.  So if we're looking at Chicago and the bigram is 'best pizza' and it shows up 100 times out of 1000 
+total bigrams in all the Chicago tweets, the term frequency is $0.1$.  Now if the bigram 'best pizza' also occurs in both the 
+NY and LA tweets the *inverse document frequency* is then $ln(\frac{3}{3}) = 0$ so the **tf-idf** for 'best pizza' is $0.1 * 0 
+= 0$.  On the other hand if it was only used in the Chicago set of tweets the .1 would be multiplied by $ln(\frac{3}{1}) = 
+1.099$ therefore increasing it's weight.  In this way the calculating the **tf-idf** can help determine which terms (word 
+pairs) characterize the #foodie tweets from each city.
 
 Here are the top tf-idf bigrams from this set.
 ```{r bigram_tf_idf, echo=TRUE}
