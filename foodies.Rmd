@@ -151,15 +151,6 @@ idf(term) = ln(no_of_documents / no_of_documents containing term)
 
 In this case because there are only three cities the idf could be either ln(3/3), ln(3/2) = 0.405, or ln(3/1) = 1.099.  So if we're looking at Chicago and the bigram is 'best pizza' and it shows up 100 times out of 1000 total bigrams in all the Chicago tweets, the term frequency is 0.1.  Now if the bigram 'best pizza' also occurs in both the NY and LA tweets the *inverse document frequency* is then ln(3/3) = 0 so the **tf-idf** for 'best pizza' is 0.1 * 0 = 0.  On the other hand if it was only used in the Chicago set of tweets the .1 would be multiplied by ln(3/1) = 1.099 therefore increasing it's weight.  In this way the calculating the **tf-idf** can help determine which terms (word pairs) characterize the #foodie tweets from each city.
 
-Here are the top tf-idf bigrams from this set.
-```{r bigram_tf_idf, echo=TRUE}
-bigram_tf_idf <- bigrams_united %>%
-  count(City, bigram) %>%
-  bind_tf_idf(bigram, City, n) %>%
-  arrange(desc(tf_idf))
-# top 10
-head(bigram_tf_idf, 10)
-```
 
 ### Part 3: Plot it
 
