@@ -152,12 +152,10 @@ is calculated as:
 
 $$idf(term) = ln(\frac{n_{documents}}{n_{documents containing term}})$$
 
-In this case because there are only three cities the idf could be either $ln(\frac{3}{3}) = 0$, $ln(\frac{3}{2}) = 0.405$, or 
-$ln(\frac{3}{1}) = 1.099$.  So if we're looking at Chicago and the bigram is 'best pizza' and it shows up 100 times out of 1000 
+In this case because there are only three cities the idf could be either ln(3/3), ln(3/2) = 0.405, or 
+ln(3/1) = 1.099.  So if we're looking at Chicago and the bigram is 'best pizza' and it shows up 100 times out of 1000 
 total bigrams in all the Chicago tweets, the term frequency is $0.1$.  Now if the bigram 'best pizza' also occurs in both the 
-NY and LA tweets the *inverse document frequency* is then $ln(\frac{3}{3}) = 0$ so the **tf-idf** for 'best pizza' is $0.1 * 0 
-= 0$.  On the other hand if it was only used in the Chicago set of tweets the .1 would be multiplied by $ln(\frac{3}{1}) = 
-1.099$ therefore increasing it's weight.  In this way the calculating the **tf-idf** can help determine which terms (word 
+NY and LA tweets the *inverse document frequency* is then ln(3/3) = 0$ so the **tf-idf** for 'best pizza' is $0.1 * 0 = 0$.  On the other hand if it was only used in the Chicago set of tweets the .1 would be multiplied by ln(3/1) = 1.099 therefore increasing it's weight.  In this way the calculating the **tf-idf** can help determine which terms (word 
 pairs) characterize the #foodie tweets from each city.
 
 Here are the top tf-idf bigrams from this set.
@@ -195,19 +193,19 @@ bigram_tfidf_plot +
 
 From the bigrams listed for each city we can see a few instances of word pairs appearing twice.  For example "peppermint mocha 
 brownies", was split into "peppermint mocha" and "mocha brownies", and "eat ripe cantaloupes" was split into equally popular 
-"eat ripe" and "ripe cataloupes".  The **tf-idf** for each bigram is exactly the same based on the height of the bars for each 
+"eat ripe" and "ripe cantaloupes".  The **tf-idf** for each bigram is exactly the same based on the height of the bars for each 
 being the same. In Los Angeles we see the same thing happening right at the top of the list, "fridayfeeling flashbackfriday 
-yum" and "carmelized banana split".  With a little more analysis and cleaning we could make the picture more clear.
+yum" and "caramelized banana split".  With a little more analysis and cleaning we could make the picture more clear.
 
 
 For a quick first pass it looks like in Chicago foodies like their chicken, ripe fruit, potato and rice, but not as much as 
 those peppermint mocha brownies.  Los Angeles likes giant burgers, cheese, the farmers market, but not as much as their 
-carmalized banana split.  New York is happy about japanese, cheese sandwich, ingredients, but not as much as their creamiest 
+caramelized banana split.  New York is happy about Japanese, cheese sandwich, ingredients, but not as much as their creamiest 
 cake filling.  Apparently I'm not the only one with a sweet tooth. ![tf-idf plot](bigram_plot-1.png)
 
 There are **many** limitations to this first look at the bigrams tf-idf by city on twitter:
 
-* Tweets that were retweeted may be overreprested, it's easier to retweet and maybe the retweet happened for a reason other 
+* Tweets that were retweeted may be overestimated, it's easier to retweet and maybe the retweet happened for a reason other 
 than the text content, like a picture or one user is a fan of the other
 
 * Analyzing the text for a topic that typically contains a lot of images may miss the subject of the tweet
