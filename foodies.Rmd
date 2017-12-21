@@ -52,8 +52,6 @@ The locations I chose were Chicago, Los Angeles, and New York with a search radi
 terms <- "#foodie OR #foodies"
 # name the cities
 cities <- c("Chicago", "Los_Angeles", "New_York")
-# input gps coordinates and 20mi radius
-geocodes <- c("41.881832,-87.623177,20mi","34.052234,-118.243685,20mi","40.7142700,-74.0059700,20mi")
 ```
 
 `searchTwitter` also takes an argument `n =` for the number of tweets to return, and in this case I set it to 2000.
@@ -76,7 +74,7 @@ The next step is to tidy up the data.  `twitteR` provides a nice function to con
 # make each a dataframe
 tweets.df <- list(chicago, la, nyc) %>% 
   map(twListToDF)
-# add city to each dataframe
+# add city name column to each dataframe
 tweets.df <- map2(tweets.df, cities, cbind)
 # combine dataframes into a single df
 tweets.df <-tweets.df %>% bind_rows()
@@ -87,7 +85,10 @@ tweets.df <- rename(tweets.df, City = `.y[[i]]`) %>%
 
 ### Part 2: Analyze the text
 
-'Stop words' are words that tend to occur very frequently, but have little to no meaning in the text.  For example 'and' or 'a' may occur very frequently in a text but tell us nothing about it.  Let's remove some of these from the tweets prior to analyzing.  `tidytext` brings with it a list of 1149 stop-words from three sources, and here I add a few extras that seem to be prevalent in these tweets, including the screen names of those tweeting.
+'Stop words' are words that tend to occur very frequently, but have little to no meaning in the text.  For example 'and' or 'a' 
+may occur very frequently in a text but tell us nothing about it.  Let's remove some of these from the tweets prior to 
+analyzing.  `tidytext` brings with it a list of 1149 stop-words from three sources, and here I add a few extras that seem to be 
+prevalent in these tweets, including the screen names of those tweeting.
 
 ```{r add_stop_words, echo=TRUE}
 # grab screenNames to add to stop_words list
@@ -101,7 +102,7 @@ custom_stop_words <- tibble(word = c(str_to_lower(unique(tweets.df$screenName)),
   bind_rows(stop_words)
 ```
 
-I'm also manually removing any urls from the tweets.
+I'm also manually removing any urls from the tweets with `stringr::str_replace`.
 
 ```{r clean_tweets, echo=TRUE}
 # clean up text to remove urls
@@ -133,14 +134,7 @@ bigrams_filtered <- bigrams %>%
   filter(!word2 %in% custom_stop_words$word)      # not word two a stop word
 ```
 
-
-```{r bigrams_head, echo=TRUE}
-bigrams_filtered %>% head(10)
-```
-
-
-The cleaned bigrams reunited into one column are below.  Note that if we had the phrase 'cast iron skillet' we would have both 
-bigrams 'cast iron' and 'iron skillet'.
+If we had the phrase 'cast iron skillet' we would get both bigrams 'cast iron' and 'iron skillet'.
 
 
 ```{r unite_bigrams, echo=TRUE}
@@ -199,8 +193,26 @@ bigram_tfidf_plot +
   )
 ```
 
-From the bigrams listed for each city we can see a few instances of word pairs appearing twice.  For example "peppermint mocha brownies", was split into "peppermint mocha" and "mocha brownies", and "eat ripe cantaloupes" was split into equally popular "eat ripe" and "ripe cataloupes".  The **tf-idf** for each bigram is exactly the same based on the height of the bars for each being the same. In Los Angeles we see the same thing happening right at the top of the list, "fridayfeeling flashbackfriday yum" and "carmelized banana split".  With a little more analysis and cleaning we could make the picture more clear.
+From the bigrams listed for each city we can see a few instances of word pairs appearing twice.  For example "peppermint mocha 
+brownies", was split into "peppermint mocha" and "mocha brownies", and "eat ripe cantaloupes" was split into equally popular 
+"eat ripe" and "ripe cataloupes".  The **tf-idf** for each bigram is exactly the same based on the height of the bars for each 
+being the same. In Los Angeles we see the same thing happening right at the top of the list, "fridayfeeling flashbackfriday 
+yum" and "carmelized banana split".  With a little more analysis and cleaning we could make the picture more clear.
 
 
-For a quick first pass it looks like in Chicago foodies like their chicken, ripe fruit, potato and rice, but not as much as those peppermint mocha brownies.  Los Angeles likes giant burgers, cheese, the farmers market, but not as much as their carmalized banana split.  New York is happy about japanese, cheese sandwich, ingredients, but not as much as their creamiest cake filling.  Apparently I'm not the only one with a sweet tooth.
-![tf-idf plot](bigram_plot-1.png)
+For a quick first pass it looks like in Chicago foodies like their chicken, ripe fruit, potato and rice, but not as much as 
+those peppermint mocha brownies.  Los Angeles likes giant burgers, cheese, the farmers market, but not as much as their 
+carmalized banana split.  New York is happy about japanese, cheese sandwich, ingredients, but not as much as their creamiest 
+cake filling.  Apparently I'm not the only one with a sweet tooth. ![tf-idf plot](bigram_plot-1.png)
+
+There are **many** limitations to this first look at the bigrams tf-idf by city on twitter:
+
+* Tweets that were retweeted may be overreprested, it's easier to retweet and maybe the retweet happened for a reason other 
+than the text content, like a picture or one user is a fan of the other
+
+* Analyzing the text for a topic that typically contains a lot of images may miss the subject of the tweet
+
+* Using the geocode limits tweets to those with location tags or user's who specify a location
+
+Limitations aside, the `tidytext` package was my first brief introduction to natural language processing and has opened to me a 
+whole new world of data.
